@@ -68,6 +68,8 @@ CORE_REQUIREMENTS = SKINNY_REQUIREMENTS + [
     "alembic",
     # Required
     "docker>=4.0.0",
+    "fastapi",
+    "uvicorn",
     "Flask",
     "gunicorn; platform_system != 'Windows'",
     "numpy",
