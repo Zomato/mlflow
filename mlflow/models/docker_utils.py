@@ -14,7 +14,8 @@ DISABLE_ENV_CREATION = "MLFLOW_DISABLE_ENV_CREATION"
 _DOCKERFILE_TEMPLATE = """
 # Build an image that can serve mlflow models.
 FROM ubuntu:18.04
-
+ARG PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
+ENV PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
 RUN apt-get -y update && apt-get install -y --no-install-recommends \
          wget \
          curl \
