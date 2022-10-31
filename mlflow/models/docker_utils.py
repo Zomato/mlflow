@@ -5,7 +5,7 @@ import logging
 
 import mlflow
 import mlflow.version
-from mlflow.utils.file_utils import TempDir, _copy_project
+from mlflow.utils.file_utils import TempDir, _copy_project, _copy_file_or_tree
 from mlflow.utils.logging_utils import eprint
 from mlflow.utils import env_manager as em
 
@@ -108,8 +108,8 @@ WORKDIR /opt/mlflow
 
 {custom_setup_steps}
 
-# granting read/write access and conditional execution authority to all child directories 
-# and files to allow for deployment to AWS Sagemaker Serverless Endpoints 
+# granting read/write access and conditional execution authority to all child directories
+# and files to allow for deployment to AWS Sagemaker Serverless Endpoints
 # (see https://docs.aws.amazon.com/sagemaker/latest/dg/serverless-endpoints.html)
 RUN chmod o+rwX /opt/mlflow/
 
@@ -117,23 +117,37 @@ RUN chmod o+rwX /opt/mlflow/
 """
 
 
-def _get_mlflow_install_step(dockerfile_context_dir, mlflow_home):
+def _get_mlflow_install_step(dockerfile_context_dir, mlflow_home, image_name):
     """
     Get docker build commands for installing MLflow given a Docker context dir and optional source
     directory
     """
     maven_proxy = _get_maven_proxy()
+    image_info = image_name.split(':')
+    MLINFRA_MODEL_NAME = 'mlinfra_' + image_info[0].split('/')[-1].lower()
+    MLINFRA_MODEL_VERSION = image_info[1]
+    print("MLINFRA_MODEL_NAME ", MLINFRA_MODEL_NAME)
+    print("MLINFRA_MODEL_VERSION ", MLINFRA_MODEL_VERSION)
     if mlflow_home:
         mlflow_dir = _copy_project(src_path=mlflow_home, dst_path=dockerfile_context_dir)
+        gcp_path = _copy_file_or_tree(src='/opt/google_credentials.json', dst=dockerfile_context_dir)
         return (
             "COPY {mlflow_dir} /opt/mlflow\n"
             "RUN pip install /opt/mlflow\n"
-            "RUN cd /opt/mlflow/mlflow/java/scoring && "
-            "mvn --batch-mode package -DskipTests {maven_proxy} && "
-            "mkdir -p /opt/java/jars && "
-            "mv /opt/mlflow/mlflow/java/scoring/target/"
-            "mlflow-scoring-*-with-dependencies.jar /opt/java/jars\n"
-        ).format(mlflow_dir=mlflow_dir, maven_proxy=maven_proxy)
+            "COPY {gcp_path} /opt/google_credentials.json\n"
+            "ENV GOOGLE_APPLICATION_CREDENTIALS='/opt/google_credentials.json'\n"
+            "ENV MLINFRA_MODEL_NAME='{MLINFRA_MODEL_NAME}'\n"
+            "ENV MLINFRA_MODEL_VERSION='{MLINFRA_MODEL_VERSION}'\n"
+            #"RUN cd /opt/mlflow/mlflow/java/scoring && "
+            #"mvn --batch-mode package -DskipTests {maven_proxy} && "
+            #"mkdir -p /opt/java/jars && "
+            #"mv /opt/mlflow/mlflow/java/scoring/target/"
+            #"mlflow-scoring-*-with-dependencies.jar /opt/java/jars\n"
+        ).format(mlflow_dir=mlflow_dir,
+            MLINFRA_MODEL_NAME=MLINFRA_MODEL_NAME,
+            maven_proxy=maven_proxy,
+            MLINFRA_MODEL_VERSION=MLINFRA_MODEL_VERSION,
+            gcp_path=gcp_path)
     else:
         return (
             "RUN pip install mlflow=={version}\n"
@@ -208,7 +222,7 @@ def _build_image(
 
     with TempDir() as tmp:
         cwd = tmp.path()
-        install_mlflow = _get_mlflow_install_step(cwd, mlflow_home)
+        install_mlflow = _get_mlflow_install_step(cwd, mlflow_home, image_name)
         custom_setup_steps = custom_setup_steps_hook(cwd) if custom_setup_steps_hook else ""
         with open(os.path.join(cwd, "Dockerfile"), "w") as f:
             f.write(
