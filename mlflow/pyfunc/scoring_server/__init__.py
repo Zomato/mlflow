@@ -305,7 +305,7 @@ def init(model: PyFuncModel):
         return {"message": "OK"}
 
     @fast_app.post("/invocations")
-    def transformation(request_data: RequestData, content_type: Optional[str] = Header(None)):  # pylint: disable=unused-variable
+    async def transformation(request_data: RequestData, content_type: Optional[str] = Header(None)):  # pylint: disable=unused-variable
         """
         Do an inference on a single batch of data. In this sample server,
         we take data as CSV or json, convert it to a Pandas DataFrame or Numpy,
@@ -381,10 +381,10 @@ def init(model: PyFuncModel):
 
         try:
             if not is_profiler_on:
-                raw_predictions = model.predict(data)
+                raw_predictions = await model.predict(data)
             else:
                 profiler.enable()
-                raw_predictions = model.predict(data)
+                raw_predictions = await model.predict(data)
                 profiler.disable()
         except MlflowException as e:
             _handle_serving_error(

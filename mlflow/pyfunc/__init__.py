@@ -361,7 +361,7 @@ class PyFuncModel:
         self._model_impl = model_impl
         self._predict_fn = getattr(model_impl, predict_fn)
 
-    def predict(self, data: PyFuncInput) -> PyFuncOutput:
+    async def predict(self, data: PyFuncInput) -> PyFuncOutput:
         """
         Generate model predictions.
 
