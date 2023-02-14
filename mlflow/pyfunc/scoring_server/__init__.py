@@ -81,6 +81,8 @@ PREDICTIONS_WRAPPER_ATTR_NAME_ENV_KEY = "PREDICTIONS_WRAPPER_ATTR_NAME"
 FASTAPI_THREAD_LIMIT_ENV_KEY          = "FASTAPI_THREAD_LIMIT"
 FASTAPI_PROFILER_ON_FLAG              = "FASTAPI_PROFILER_ON"
 GOOGLE_PROFILER_ON_FLAG               = "GOOGLE_PROFILER_ON"
+PPROF_CREDS_ACCESS_KEY                = "PPROF_CREDS_ACCESS_KEY"
+PPROF_ENABLED                         = "PPROF_ENABLED"
 
 _logger = logging.getLogger(__name__)
 
@@ -269,6 +271,19 @@ def init(model: PyFuncModel):
                 print("google profiler on")
             except (ValueError, NotImplementedError) as exc:
                 print("google profiler exception: ", exc)  # Handle errors here
+
+        if os.getenv(PPROF_ENABLED, 'false').lower() == 'true':
+                print("pprof profiler starting")
+                import pyroscope
+                pyroscope.configure(
+                    application_name = os.getenv("MLINFRA_MODEL_NAME", 'default_ml_model').lower() + 
+                    "_" + os.getenv("MLINFRA_MODEL_VERSION", '1.0.0').lower(),
+                    server_address   = "https://ingest.pyroscope.cloud",
+                    auth_token       = os.getenv(PPROF_CREDS_ACCESS_KEY, ""),
+                    tags           = {
+                        "env":   f'{os.getenv("ENVIRONMENT", "undefined")}', 
+                    }
+                )
 
         fast_app_thread_limit  = int(os.getenv(FASTAPI_THREAD_LIMIT_ENV_KEY, 0))
         if fast_app_thread_limit > 0:
