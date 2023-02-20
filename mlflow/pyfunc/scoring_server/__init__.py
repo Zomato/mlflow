@@ -280,6 +280,7 @@ def init(model: PyFuncModel):
                     "_" + os.getenv("MLINFRA_MODEL_VERSION", '1.0.0').lower(),
                     server_address   = "https://ingest.pyroscope.cloud",
                     auth_token       = os.getenv(PPROF_CREDS_ACCESS_KEY, ""),
+                    sample_rate      = 3,
                     tags           = {
                         "env":   f'{os.getenv("ENVIRONMENT", "undefined")}', 
                     }
