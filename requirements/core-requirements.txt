@@ -4,6 +4,7 @@
 
 alembic<2
 docker==5.0.3
+click=8.1.4
 Flask<3
 numpy<2
 fastapi
