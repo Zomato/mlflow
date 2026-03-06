@@ -11189,10 +11189,10 @@ fsevents@~2.1.2:
   languageName: node
   linkType: hard
 
-"immutable@npm:3.8.1":
-  version: 3.8.1
-  resolution: "immutable@npm:3.8.1"
-  checksum: a37e6d980da48b17ab5540a0fd7b286de20183382319fb818e244f0a309f712bdef332182d9d301186ca4677b6d818ed64b62ffad2945cf96c82bca4c2c3600b
+"immutable@npm:3.8.3":
+  version: 3.8.3
+  resolution: "immutable@npm:3.8.3"
+  checksum: 3c668e4e92d77876f95081ed695c594f802fc8f88dc888e562ce70d26eb92596c65fbd64caad8fef054358c21990d52c77b28e9dc7bd6c8f53cf44775cfb44f9
   languageName: node
   linkType: hard
 
@@ -12834,7 +12834,7 @@ fsevents@~2.1.2:
     file-saver: 1.3.8
     html-entities: 1.2.1
     http-proxy-middleware: ^1.0.3
-    immutable: 3.8.1
+    immutable: 3.8.3
     jest: 23.6.0
     jest-canvas-mock: ^2.2.0
     jest-localstorage-mock: ^2.3.0
